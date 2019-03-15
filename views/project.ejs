@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<title>ghShot - Projects</title>
+
+
+	<style>
+	* {
+		box-sizing: border-box;
+		-moz-box-sizing: border-box;
+		}
+
+		#content {
+			position: absolute;
+			top: 10%; width: 90%;
+			z-index: 1;
+			padding: 0 0 0 0;
+		}
+
+		a {
+			color: #0080ff;
+		}
+
+		#c {
+			position: fixed;
+			width: 100%; height:100%; left:0px;
+			z-index: -1;
+		}
+
+		/* a .snapTitle {
+			color: #888;
+		} */
+
+		.list-item {
+			display: inline-block;
+			margin: 1em;
+			padding: 1em;
+			box-shadow: 1px 2px 4px 0px rgba(0,0,0,0.25);
+		}
+
+		.list-item .scene {
+			width: 400px;
+			height: 300px;
+		}
+
+		#descDownload {
+			/*color: #888;
+			font-family: sans-serif;
+			font-size: large;
+			width: 200px;
+			margin-top: 0.5em;*/
+			z-index:1;
+			position: relative;
+			top: -25px;
+	 		left: 340px;
+			width: 30px;
+		}
+
+		.list-item .description {
+			color: #888;
+			font-family: sans-serif;
+			font-size: large;
+			width: 200px;
+			margin-top: 0.5em;
+			/*z-index:1;
+			position: relative;
+			top: -300px;
+			left: 300px;*/
+		}
+
+		form * {
+			display: block;
+			margin: 10px;
+		}
+
+		.panel-body {
+		background:#dfdfdf;}
+
+		#projectContent {
+		 width: 88%;
+		}
+
+		.rightPanel {
+		 font-family: Geneva, sans-serif;
+			padding: 10px 10px 10px 10px;
+		 position: fixed;
+		 right: 0;
+		 top: 10%;
+		 width: 12%;
+		 height: 90%;
+		 /* background-color: rgba(0, 0, 0, 0.1); */
+		 background:#dfdfdf;
+		 z-index: 4;
+		}
+
+		#ex1Slider .slider-selection {
+			background: #BABABA;
+		}
+
+		/* Pagination links */
+		.pagination button {
+		    color: black;
+		    float: left;
+		    padding: 8px 16px;
+		    text-decoration: none;
+		    transition: background-color .3s;
+				border-radius: 6px;
+		}
+
+		/* Style the active/current link */
+		.pagination button.active {
+		    background-color: #4CAF50;
+		    color: white;
+		}
+
+		/* Add a grey background color on mouse-over */
+		.pagination button:hover:not(.active) {background-color: #ddd;}
+
+		.loader {
+	position: absolute;
+	left:calc(50vw - 25px);
+	top:calc(50vh - 25px);
+	align-content: center;
+  border: 5px solid #f3f3f3; /* Light grey */
+  border-top: 5px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+	-webkit-animation: spin 1s linear infinite; /* Safari */
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+		</style>
+
+		<link rel="stylesheet" href="../../css/bootstrap.min.css">
+
+		<link rel="stylesheet" href="../../css/font-awesome.min.css">
+		<link rel="stylesheet" href="../../css/rating/fontawesome-stars-o.css">
+		 <link rel="stylesheet" href="../../css/rating/bootstrap-stars.css">
+
+		<link rel="stylesheet" href="../../css/bootstrap-slider.min.css" >
+
+
+		<!-- temporary hack for the paths?? it has something to do with the routing @.@ -->
+		<script type="text/javascript" src="../../js/lib/d3.v3.min.js"></script>
+		<script type="text/javascript" src="../../js/lib/three.min.js"></script>
+		<script type="text/javascript" src="../../js/OrbitControls.js"></script>
+		<script type="text/javascript" src="../../js/lib/jquery-1.11.3.js"></script>
+		<script type="text/javascript" src="../../js/lib/bootstrap-slider.min.js"></script>
+		<script type="text/javascript" src="../../js/draw3DSnaps.js"></script>
+
+		<script src="../../js/lib/jquery.barrating.min.js"></script>
+
+
+	</head>
+
+	<body>
+
+		<canvas id="c"></canvas>
+		<div class="loader"></div>
+
+
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<div class="row">
+            <div class="col-md-10" id="topPanel_col1"></div>
+						<div class="col-md-2" id="topPanel_col2"></div>
+        </div>
+				</div>
+			</div>
+
+
+			<div class="rightPanel privateAccess" id="notesText">
+
+ <!-- style="display: none;"  -->
+				 <div class="form-check">
+				</div>
+						<br>
+				<div class="pagination">
+					<p>Page</p>
+				</div>
+			</div>
+
+<div id="projectContent"></div>
+
+		<script>
+
+
+
+function sortByDate()
+{
+
+}
+
+$("#childTick").change(function(event) {
+    if(this.checked) {
+
+    }
+		else {
+
+		}
+});
+
+var contentList = [];
+var dataList = [];
+
+		var loggedInUser = "vc"
+		var project = "test"
+		var access = "Public"
+		var username = "vc"
+
+		$('#topPanel_col1').append(col1Txt);
+		$('#topPanel_col2').append('<p>WELCOME <a>' + loggedInUser + '</a></p>');
+		</script>
+
+			<script id="template" type="notjs">
+			<div class="scene"></div>
+			<div class="description">$</div>
+			</script>
+
+
+			<script>
+
+			//maybe: put onload image (for ppl to wait)
+			var getProject = function(username,id,access, index) {
+				return new Promise(function (resolve, reject){
+					var request = new XMLHttpRequest();
+					request.open('GET', '/getProject?username='+username+'&id='+id+'&access='+access+'&index='+index, true);
+
+					request.onload = function() {
+						if(request.status >= 200 && request.status < 400) {
+							resolve(request.responseText);
+						}
+						else {
+							reject("error");
+						}
+					};
+
+					request.onerror = function() {
+					};
+
+					request.send();
+				});
+			};
+
+			var getIndividualRating = function(id, index) {
+				return new Promise(function (resolve, reject){
+					var request = new XMLHttpRequest();
+					request.open('GET', '/getIndividualRating?username='+username+'&id='+id+'&index='+index, true);
+					request.onload = function() {
+						if(request.status >= 200 && request.status < 400) {
+							resolve(request.responseText);
+						}
+						else {
+							reject("error");
+						}
+					};
+					request.onerror = function() {
+					};
+					request.send();
+				});
+			};
+
+var totalDesignCount = 0, maxIndex = 0;
+
+var curActivePage = 0;
+function pageClick (pageIndex){
+
+	{
+		//normal number
+		getProject(username,project, access, pageIndex).then(function(result) {
+
+		$("#pageButton" + curActivePage).removeClass("active")
+		$("#pageButton" + pageIndex).addClass("active")
+		curActivePage = pageIndex;
+
+		$('#projectContent').empty()
+		//clear content & datalist first
+		// contentList = []
+		// contentList.push("projectContent");
+		dataList = []
+		// console.log(JSON.parse(result).data)
+		dataList.push( JSON.parse(result).data);
+
+		//draw button
+		drawAll(contentList,dataList,false);
+
+	})
+	}
+}
+
+function drawPaginationButton(){
+	var htmlString = "";
+
+	//htmlString += '	<button id="pageButtonA" onclick="pageClick(A)">&laquo</button>' //PREV
+
+	//first page
+	htmlString += '<button id="pageButton0" class="active" onclick="pageClick(0)">1</button>'
+	for(var i = 1; i< maxIndex; i++)
+	{
+		var buttonID = "pageButton" + i;
+			htmlString += '<button id="'+ buttonID + '" onclick="pageClick('+ i +')">'+ (i+1) +'</button>'
+	}
+
+	//htmlString += '	<button id="pageButtonB" onclick="pageClick(B)">&raquo</button>' //NEXT
+
+	$('.pagination').append(htmlString);
+}
+
+			var maxDesignsInAPage = 5;
+			window.onload = function () {
+
+				console.log("project page loaded")
+
+				//0 onload
+				getProject(username,project, access, 0).then(function(result) {
+
+
+				contentList.push("projectContent");
+				//console.log("HA",result.count)
+				dataList.push( JSON.parse(result).data);
+
+				totalDesignCount = parseInt(JSON.parse(result).count)
+
+				maxIndex = parseInt(totalDesignCount/maxDesignsInAPage)
+
+				if(totalDesignCount%maxDesignsInAPage > 0)
+					maxIndex += 1;
+
+				//draw button
+				drawPaginationButton();
+				drawAll(contentList,dataList,false);
+				$(".loader").hide();
+
+			})
+			}
+				</script>
+
+</body>
+</html>

@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <title>ghShot - Projects</title>
+
+    <link href="../../../css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- temporary hack for the paths?? it has something to do with the routing @.@ -->
+    <script type="text/javascript" src="../../../js/lib/d3.v3.min.js"></script>
+    <script type="text/javascript" src="../../../js/lib/jquery-1.11.3.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            -moz-box-sizing: border-box;
+        }
+
+        .node {
+            cursor: pointer;
+        }
+
+        .node circle {
+            fill: #fff;
+            stroke: steelblue;
+            stroke-width: 1px;
+        }
+
+        .node text {
+            font: 12px sans-serif;
+        }
+
+        .link {
+            fill: none;
+            stroke: #ccc;
+            stroke-width: 2px;
+        }
+
+        #helloTree {
+            position: static;
+            top: 0px;
+            /* width: 100px; height:100px; */
+            padding: 5px;
+        }
+
+        #content {
+            position: absolute;
+            top: 0px;
+            width: 100%;
+            z-index: 1;
+            padding: 0 0 0 0;
+        }
+
+        a {
+            color: #0080ff;
+        }
+
+        #c {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            left: 0px;
+        }
+
+        .list-item {
+            display: inline-block;
+            margin: 1em;
+            padding: 1em;
+            box-shadow: 1px 2px 4px 0px rgba(0, 0, 0, 0.25);
+        }
+
+        .list-item .scene {
+            width: 400px;
+            height: 300px;
+        }
+
+        .list-item .description {
+            color: #888;
+            font-family: sans-serif;
+            font-size: large;
+            width: 200px;
+            margin-top: 0.5em;
+        }
+
+        form * {
+            display: block;
+            margin: 10px;
+        }
+
+        .panel-body {
+            background: #dfdfdf;
+        }
+
+        #mainViewContainer {
+            width: 95%;
+            height: 95%;
+            border: 1px solid #D3D3D3;
+            margin: 10px;
+            padding: 3px;
+            overflow: hidden;
+        }
+
+        #mainTopDiv {
+            width: 95%;
+            margin-left: 10px;
+        }
+
+        #mainView {
+            width: 100%;
+            height: 100%;
+            min-height: 100%;
+            display: inline;
+        }
+
+        .thumbViewClass {
+            border: 1px solid #D3D3D3;
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            width: 20%;
+            height: 30%;
+            margin: 3px;
+            padding: 3px;
+            overflow: hidden;
+        }
+
+        #thumbView {
+            z-index: 110;
+            background: white;
+        }
+
+        #thumbViewContainer {
+            opacity: 0.7;
+        }
+
+        #thumbViewContainer:hover {
+            opacity: 1;
+        }
+
+        #scopeContainer {
+            z-index: 120;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }
+
+        .dot {
+            fill: #fff;
+            stroke: steelblue;
+            stroke-width: 1px;
+            /* fill-opacity:0.1; */
+            stroke-opacity: 0.0;
+        }
+
+        .tooltip {
+            padding: 10px 10px 10px 10px;
+            position: absolute;
+            font-size: 12px;
+            width: auto;
+            height: 140px;
+            pointer-events: none;
+            background-color: white;
+            box-shadow: 8px 8px 6px -6px rgb(182, 180, 180);
+            border-radius: 7px;
+        }
+
+        #legendContainer {
+            position: absolute;
+            padding: 10px;
+            height: 0px;
+            width: 0px;
+            overflow: visible;
+            /*overflow: auto;*/
+            /* overflow-y:scroll; */
+            /*height:200px;*/
+            /*width:100px;*/
+        }
+
+        #legend {
+            height: 10px;
+            width: 10px;
+            overflow: visible;
+            /*overflow-y:auto;*/
+        }
+
+        .legend {
+            font-size: 12px;
+            font-weight: normal;
+            text-anchor: left;
+        }
+
+        .legendcheckbox {
+            cursor: pointer;
+        }
+
+        .loader {
+            position: absolute;
+            left: calc(50vw - 25px);
+            top: calc(50vh - 25px);
+            align-content: center;
+            border: 5px solid #f3f3f3;
+            /* Light grey */
+            border-top: 5px solid #3498db;
+            /* Blue */
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            -webkit-animation: spin 1s linear infinite;
+            /* Safari */
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        #discrete-X {
+            max-height: 40vh;
+            overflow-x: scroll;
+        }
+
+        #discrete-Y {
+            max-height: 40vh;
+            overflow-x: scroll;
+        }
+
+        #optionX {
+            border-radius: 10px;
+            position: absolute;
+            display: none;
+            width: 300px;
+            height: auto;
+            padding: 0.5em;
+            opacity: 1;
+            z-index: 200;
+        }
+
+        #optionY {
+            border-radius: 10px;
+            position: absolute;
+            display: none;
+            width: 300px;
+            left: 300px;
+            height: auto;
+            padding: 0.5em;
+            opacity: 1;
+            z-index: 200;
+        }
+
+        #optionColor {
+            border-radius: 10px;
+            position: absolute;
+            display: none;
+            width: 300px;
+            left: 900px;
+            height: auto;
+            padding: 0.5em;
+            opacity: 1;
+            z-index: 200;
+        }
+
+        #closeX,
+        #closeY,
+        #closeColor {
+            background-color: red;
+            border-radius: 10px;
+            color: white;
+            width: 20px;
+            height: 20px;
+            top: 0px;
+            right: 0px;
+            position: absolute;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        #optionX:hover,
+        #optionY:hover {
+            opacity: 1
+        }
+
+        #filterX {
+            width: 10px;
+            height: 10px;
+            border-radius: 5px;
+            background-color: orange;
+        }
+
+        #filterY {
+            width: 10px;
+            height: 10px;
+            border-radius: 5px;
+            background-color: orange;
+        }
+
+        #filterColor {
+            width: 10px;
+            height: 10px;
+            border-radius: 5px;
+            background-color: orange;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+            /* remove scrollbar space */
+            background: transparent;
+            /* optional: just make scrollbar invisible */
+        }
+        /* optional: show position indicator in red */
+
+        ::-webkit-scrollbar-thumb {
+            background: rgb(228, 228, 228);
+        }
+        /* #showAll{
+	position:absolute;
+	top:600px;
+	left:880px;
+}
+#clearAll{
+	position:absolute;
+	top:600px;
+	left:950px;
+} */
+    </style>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+
+</head>
+
+<body>
+    <div id="optionX" class="ui-widget-content">
+        <div id="closeX"></div>
+        <p>X Axis</p>
+        <input type="text" id="amountX" readonly style="border:0; color:#f6931f; font-weight:bold;">
+        <div id="slider-range-X"></div>
+        <div id="discrete-X"></div>
+    </div>
+    <div id="optionY" class="ui-widget-content">
+        <div id="closeY"></div>
+        <p>Y Axis</p>
+        <input type="text" id="amountY" readonly style="border:0; color:#f6931f; font-weight:bold;">
+        <div id="slider-range-Y"></div>
+        <div id="discrete-Y"></div>
+    </div>
+    <div id="optionColor" class="ui-widget-content">
+        <div id="closeColor"></div>
+        <p>Color Axis</p>
+        <input type="text" id="amountColor" readonly style="border:0; color:#f6931f; font-weight:bold;">
+        <div id="slider-range-Color"></div>
+        <div id="discrete-Color"></div>
+    </div>
+    <div class="loader"></div>
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-10" id="topPanel_col1"></div>
+                <div class="col-md-2" id="topPanel_col2"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="mainTopDiv">
+        X axis:
+        <select id="xSelect">
+        </select>
+        <div id="filterX" style="display:inline-block;">
+        </div>
+        &nbsp;&nbsp; &nbsp; Y axis: &nbsp;
+        <select id="ySelect">
+        </select>
+        <div id="filterY" style="display:inline-block;"></div>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <label class="form-check-label">
+            <input class="form-check-input" id="childTick" type="checkbox" value=""> Child Node Only
+        </label>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <label class="form-check-label">
+            <input class="form-check-input" id="myDesignTick" type="checkbox" value=""> Show My Design Only
+        </label>
+
+        &nbsp;&nbsp;&nbsp;&nbsp; Color: &nbsp;
+        <select id="colorSelect">
+        </select>
+        <div id="filterColor" style="display:inline-block;"></div>
+
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <label class="form-check-label">
+            <input class="form-check-input" id="legendTick" type="checkbox" value="" checked> Show Legend
+        </label>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <label class="form-check-label">
+            <input class="form-check-input" id="explorerOpt" type="checkbox" value="" checked> Show Explorer
+        </label>
+    </div>
+
+    <div id="helloTree"> </div>
+
+    <div id="mainViewContainer">
+        <!-- <svg id="mainView" viewBox="0 0 900 800"><rect fill="#00000", x="10"  y="20" width="900" height="800"></rect></svg> -->
+        <div id="legendContainer" class="legendContainer">
+            <svg id="legend"></svg>
+
+        </div>
+    </div>
+
+    <div id="thumbViewContainer">
+        <svg id="scopeContainer" class="thumbViewClass">
+            <g>
+                <rect id="scope" fill="red" fill-opacity="0.1" stroke="red" stroke-width="2px" x="0" y="0" width="0" height="0" />
+                <line id="line1" stroke="red" stroke-width="2px" x1="0" y1="0" x2="0" y2="0" />
+                <line id="line2" stroke="red" stroke-width="2px" x1="0" y1="0" x2="0" y2="0" />
+            </g>
+        </svg>
+        <!-- <svg id="thumbView" class="thumbViewClass"><rect fill="#00000", x="10"  y="20" width="900" height="800"></rect></svg> -->
+    </div>
+
+    <script src="../../../js/lib/lodash.js"></script>
+    <script src="../../../js/svg-pan-zoom.js" type="text/javascript"></script>
+    <script src="../../../js/panzoom.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+
+        $(function() {
+            $("#optionX").draggable();
+            $("#optionY").draggable();
+            $("#optionColor").draggable();
+        });
+        $(".form-check-label").click(function() {
+            $("#draggable").show();
+        });
+        $("#closeX").click(function() {
+            console.log($(this).parent());
+            $(this).parent().hide();
+        });
+        $("#closeY").click(function() {
+            console.log($(this).parent());
+            $(this).parent().hide();
+        });
+        $("#closeColor").click(function() {
+            console.log($(this).parent());
+            $(this).parent().hide();
+        });
+        $("#filterX").click(function() {
+            $("#optionX").show();
+        });
+        $("#filterY").click(function() {
+            $("#optionY").show();
+        });
+        $("#filterColor").click(function() {
+            $("#optionColor").show();
+        });
+        var username = window.location.href.split('/')[4]
+        var loggedInUser = <%- JSON.stringify(data.username) %>;
+        //perhaps don't need to send the data?
+        var project = <%- JSON.stringify(data.project) %>;
+
+        //populateTopPanel
+        var urlModif = window.location.href.split('/');
+        var projectStringURL = 'http://' + urlModif[2] + '/' + urlModif[3] + '/' + urlModif[4] + '/' + urlModif[5]
+        col1Txt = '<p> <a class="button" href="../../../" >Project List </a> > <i>Current Project:</i> <b><a class="button" href="' + projectStringURL + '" >' + project + '</a> </b></p>'
+        $('#topPanel_col1').append(col1Txt);
+        $('#topPanel_col2').append('<p>WELCOME <a>' + loggedInUser + '</a></p>');
+
+        /*function filter(darray, min, max) {
+            var filtered = []
+            for (var i = 0; i < darray.length; i++) {
+                if (darray[i] >= min && darray[i] <= max) {
+                    filtered.push(darray[i]);
+                }
+            }
+            return filtered;
+        }*/
+        //populate dropdown
+        var variableList = [];
+        var variableListType = {};
+        var cleanData = [];
+        var childOnlyData = [];
+        var selectedX;
+        var selectedY;
+        var selectedColor;
+        //check input data from all rows (?)
+        function getInputVariable(data) {
+            for (var i = 0; i < data.length; i++) {
+                var dataRow = {};
+                for (var j = 0; j < data[i].data.inputData.length; j++) {
+                    var name = data[i].data.inputData[j].Key;
+                    //add name to variable list-item
+                    if (!variableList.includes(name)) //if not found previously, add
+                    {
+                        variableList.push(name)
+                    }
+                    if (!isNaN(data[i].data.inputData[j].Value)) {
+                        dataRow[name] = +data[i].data.inputData[j].Value; //convert to number here?
+                        variableListType[name] = "number";
+                    } else {
+                        dataRow[name] = data[i].data.inputData[j].Value; //normal copy
+                        variableListType[name] = "text";
+                    }
+                }
+                //console.log(dataRow)
+                //also add image Information
+                dataRow['image'] = data[i].data.image;
+                dataRow['_id'] = data[i]._id;
+                dataRow['created_by'] = data[i].created_by;
+                var date = new Date(data[i].created_on);
+                dataRow['created_on'] = date.getTime();
+                if (data[i].rate == undefined)
+                    dataRow['rate'] = 0; //voting
+                else {
+                    dataRow['rate'] = +data[i].rate;
+                }
+                if (data[i].voteCount == undefined)
+                    dataRow['voteCount'] = 0; //voting
+                else {
+                    dataRow['voteCount'] = +data[i].voteCount;
+                }
+                if (!data[i].hasOwnProperty('children')) {
+                    dataRow['isChild'] = true;
+                } else {
+                    dataRow['isChild'] = false;
+                }
+                cleanData.push(dataRow);
+            }
+            console.log(cleanData);
+            //add default variable list: created_on and created_by
+            variableList.push('created_on')
+            variableList.push('created_by')
+            variableList.push('rate')
+            variableList.push('voteCount')
+            variableListType['created_on'] = "text";
+            variableListType['created_by'] = "text";
+            variableListType['rate'] = "number";
+            variableListType['voteCount'] = "number";
+            for (var i = 0; i < variableList.length; i++) {
+                $('#xSelect').append($('<option>', {
+                    value: variableList[i],
+                    text: variableList[i]
+                }));
+                $('#ySelect').append($('<option>', {
+                    value: variableList[i],
+                    text: variableList[i]
+                }));
+                $('#colorSelect').append($('<option>', {
+                    value: variableList[i],
+                    text: variableList[i]
+                }));
+            };
+            //SET SELECTED DROPDOWN
+            //set to select first from tge variableList ?
+            $('#xSelect').val("created_on");
+            selectedX = $('#xSelect').val();
+            $('#ySelect').val("created_by");
+            selectedY = $('#ySelect').val();
+            $('#colorSelect').val("rate");
+            selectedColor = $('#colorSelect').val();
+        }
+        $('#xSelect').change(function() {
+            selectedX = $('#xSelect').val();
+            update("new");
+        })
+        $('#ySelect').change(function() {
+            selectedY = $('#ySelect').val();
+            update("new");
+        })
+        $('#colorSelect').change(function() {
+            selectedColor = $('#colorSelect').val();
+            update("new");
+        })
+
+        function computeSvgSizeFromData(config) {
+            //do nothing now, return same value
+            var minSvgWidth = config.width;
+            var minSvgHeight = config.height;
+            return {
+                width: minSvgWidth,
+                height: minSvgHeight
+            };
+        }
+
+        // ************** Generate the tree diagram	 *****************
+        var margin = {
+                top: 20,
+                right: 120,
+                bottom: 20,
+                left: 120
+            },
+            Dwidth = 1560 - margin.right - margin.left,
+            Dheight = 500 - margin.top - margin.bottom;
+        var x = d3.scale.linear().range([0, Dwidth]);
+        var xB = d3.scale.ordinal().rangeRoundBands([0, Dwidth], 0.05);
+        var xScale = d3.time.scale()
+            .range([0, Dwidth]);
+        var y = d3.scale.linear().range([Dheight, 0]);
+        var yB = d3.scale.ordinal().rangeRoundBands([Dheight, 0], 0.05);
+        var yScale = d3.time.scale()
+            .range([Dheight, 0]);
+        // for number
+        var xAxis = d3.svg.axis()
+            .scale(x)
+            .orient("bottom")
+            // for discrete, ex created_by
+        var xAxisA = d3.svg.axis()
+            .scale(xB)
+            .orient("bottom")
+            // for date
+        var xAxisB = d3.svg.axis()
+            .scale(xScale)
+            .orient("bottom")
+            .tickFormat(d3.time.format("%d-%b-%y"))
+        var yAxis = d3.svg.axis()
+            .scale(y)
+            .orient("left");
+        var yAxisA = d3.svg.axis()
+            .scale(yB)
+            .orient("left");
+        var yAxisB = d3.svg.axis()
+            .scale(yScale)
+            .orient("left")
+            .ticks(d3.time.days, 1)
+            .tickFormat(d3.time.format("%d-%b-%y"))
+            // var actualWidth2 = 1200, actualHeight2 = 1760;
+        var svg = d3.select("body").append("svg")
+            .remove()
+            .attr("id", "historyTree")
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        var svg2 = d3.select("body").append("svg")
+            .remove()
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        var legend = {
+            set: []
+        };
+        var eliminated = []
+            // Define our scales #7ba8f2
+        var colorScale = {
+            category: d3.scale.category10(),
+            linear: d3.scale.linear().range(['#c9ddff', '#003fa8'])
+        };
+        var currXScale, currYScale;
+        var currXAxis, currYAxis;
+        var currColorScale;
+        var force;
+        var node;
+        var forceData = [];
+
+        function sortNumber(a, b) {
+            return a - b;
+        }
+        // to initialize slider value when change selection type
+        rangeX = d3.extent(cleanData, function(d) {
+            return d[selectedX];
+        });
+        rangeY = d3.extent(cleanData, function(d) {
+            return d[selectedY];
+        });
+        var discrete = {
+            x: [],
+            y: [],
+            color: []
+        };
+
+        function setup() {
+            var tipMouseover = function(d) {
+                console.log("mouse over")
+                var color2 = "##0080ff"
+                if (selectedX == "created_on") {
+                    value1 = d3.time.format("%d-%b-%y")(new Date(d[selectedX]))
+                } else {
+                    value1 = d[selectedX]
+                }
+                if (selectedY == "created_on") {
+                    value2 = d3.time.format("%d-%b-%y")(new Date(d[selectedY]))
+                } else {
+                    value2 = d[selectedY]
+                }
+                var html = '<div><b>' + d['_id'] + "</b><br/>" +
+                    "<span style='color:" + color2 + ";'>" + d['created_by'] + "</span><br/>" +
+                    selectedX + ": <b>" + value1 + "</b><br/> " + selectedY + ": <b>" + value2 + "</b><br/>" + '<img STYLE="position:absolute; TOP:0px; LEFT:-50px;" src=' + d.image + '></img>'
+                tooltip.html(html)
+                    .style("left", (d3.event.pageX + 15) + "px")
+                    .style("top", (d3.event.pageY - 28) + "px")
+                    .transition()
+                    .duration(200) // ms
+                    .style("opacity", .9) // started as 0!
+            };
+            // tooltip mouseout event handler
+            var tipMouseout = function(d) {
+                tooltip.transition()
+                    .duration(300) // ms
+                    .style("opacity", 0); // don't care about position!
+            };
+            currXScale = xScale;
+            xScale.domain(d3.extent(cleanData, function(d) {
+                        return d[selectedX];
+                    }));
+            currXAxis = xAxisB;
+
+
+            yB.domain(cleanData.map(function(d) {
+                return d[selectedY];
+            }));
+            currYAxis = yAxisA;
+            currYScale = yB;
+
+            node = svg.selectAll(".dot")
+                .data(cleanData)
+            node2 = svg2.selectAll(".dot")
+                .data(cleanData)
+            nodeImage = svg.selectAll(".dot").data(cleanData)
+            nodeImage2 = svg2.selectAll(".dot").data(cleanData)
+            var nodeEnter = nodeImage.enter().append("g")
+            var nodeEnter2 = nodeImage2.enter().append("g")
+            nodeEnter
+                .append("image")
+                .attr("href", function(d) {
+                    return d.image;
+                })
+                //.attr("x", function(d) { return currXScale(d[selectedX]); })
+                .attr("x", function(d) {
+                    return currXScale(d[selectedX]) - 100
+                })
+                .attr("y", function(d) {
+                    return currYScale(d[selectedY]) - 100
+                })
+            nodeEnter2
+                .append("image")
+                .attr("href", function(d) {
+                    return d.image;
+                })
+                //.attr("x", function(d) { return currXScale(d[selectedX]); })
+                .attr("x", function(d) {
+                    return currXScale(d[selectedX]) - 100
+                })
+                .attr("y", function(d) {
+                    return currYScale(d[selectedY]) - 100
+                })
+
+            node.enter()
+                .append("circle")
+                .attr("r", radius)
+                .attr("cx", function(d) {
+                    return currXScale(d[selectedX]);
+                })
+                .attr("cx", function(d) {
+                    return currYScale(d[selectedY]);
+                })
+                .style("fill", function(d) {
+                    return d.color
+                })
+                .on("click", function(d) {
+                    var url = '../' + projectName + '/design/' + d._id;
+                    window.location = url;
+                })
+                .style("fill-opacity", 1) // set to 1e-6 to hide
+                .on("mouseover", tipMouseover)
+                .on("mouseout", tipMouseout);
+
+
+            node2.enter()
+                .append("circle")
+                .attr("r", radius)
+                .attr("cx", function(d) {
+                    return currXScale(d[selectedX]);
+                })
+                .attr("cx", function(d) {
+                    return currYScale(d[selectedY]);
+                })
+                .style("fill", function(d) {
+                    return d.color
+                })
+                .on("click", function(d) {
+                    var url = '../' + projectName + '/design/' + d._id;
+                    window.location = url;
+                })
+                .style("fill-opacity", 1) // set to 1e-6 to hide
+                .on("mouseover", tipMouseover)
+                .on("mouseout", tipMouseout);
+
+            function tick(e) {
+                //console.log(e)
+                node.each(moveTowardDataPosition(e.alpha));
+                //if (checkbox.node().checked)
+                node.each(collide(e.alpha));
+                node.attr("cx", function(d) {
+                    if (d.x != NaN) {
+                        return d.x;
+                    } else {
+                        return 0;
+                    }
+                })
+                .attr("cy", function(d) {
+                    if (d.y != NaN) {
+                        return 1;
+                    } else {
+                        return 1;
+                    }
+                    });
+            }
+
+            function moveTowardDataPosition(alpha) {
+                return function(d) {
+                    d.x += (currXScale(d[selectedX]) - d.x) * 0.1 * alpha;
+                    d.y += (currYScale(d[selectedY]) - d.y) * 0.1 * alpha;
+                };
+            }
+            force = d3.layout.force()
+                //.nodes(forceData)
+                .nodes(cleanData)
+                .size([Dwidth, Dheight])
+                //.on("tick", tick)
+                .charge(-5)
+                .gravity(0)
+                .chargeDistance(20);
+            force.start();
+
+            // TOOLTIP
+            // Add the tooltip container to the vis container
+            // it's invisible and its position/contents are defined during mouseover
+            var tooltip = d3.select("#helloTree").append("div")
+                .attr("class", "tooltip")
+                .style("opacity", 0);
+
+            update("new");
+            svg.append("text")
+                .attr("transform", "translate(0," + Dheight + ")")
+                .attr("class", "labelX")
+                .attr("x", Dwidth)
+                .attr("y", -6)
+                .style("text-anchor", "end")
+                .text(selectedX);
+            svg.append("text")
+                .attr("class", "labelY")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text(selectedY)
+            svg2.append("text")
+                .attr("transform", "translate(0," + Dheight + ")")
+                .attr("class", "labelX")
+                .attr("x", Dwidth)
+                .attr("y", -6)
+                .style("text-anchor", "end")
+                .text(selectedX);
+            svg2.append("text")
+                .attr("class", "labelY")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text(selectedY)
+            // tooltip mouseover event handler
+
+
+            for (var i = 0; i < cleanData.length; i++) {
+                var val = cleanData[i][selectedColor];
+                if (variableListType[selectedColor] == "number") {
+                    if (!legend.set.includes(val)) {
+                        legend.set.push(val)
+                    }
+                } else {
+                    if (!legend.set.includes(val)) {
+                        legend.set.push(val)
+                    }
+                }
+                if (!discrete.x.includes(cleanData[i]["created_by"])) {
+                    discrete.x.push(cleanData[i]["created_by"]);
+                }
+                if (!discrete.y.includes(cleanData[i]["created_by"])) {
+                    discrete.y.push(cleanData[i]["created_by"]);
+                }
+                if (!discrete.color.includes(cleanData[i]["created_by"])) {
+                    discrete.color.push(cleanData[i]["created_by"]);
+                }
+            }
+            for (var i = 0; i < discrete.x.length; i++) {
+                $("#discrete-X").append('<input type="checkbox" class="' + discrete.x[i] + '" checked>' + discrete.x[i] + '</br>');
+            }
+            for (var i = 0; i < discrete.y.length; i++) {
+                $("#discrete-Y").append('<input type="checkbox" class="' + discrete.y[i] + '" checked>' + discrete.y[i] + '</br>');
+            }
+            for (var i = 0; i < discrete.color.length; i++) {
+                $("#discrete-Color").append('<input type="checkbox" class="' + discrete.color[i] + '" checked>' + discrete.color[i] + '</br>');
+            }
+            $('#discrete-X input[type=checkbox]').change(
+                function() {
+                    if (!this.checked) {
+                        if (!eliminated.includes(this.className)) {
+                            eliminated.push(this.className);
+                        }
+                    } else {
+                        var index = eliminated.indexOf(this.className);
+                        if (index > -1) {
+                            eliminated.splice(index, 1);
+                        }
+                    }
+                    update("current");
+                });
+            $('#discrete-Y input[type=checkbox]').change(
+                function() {
+                    if (!this.checked) {
+                        if (!eliminated.includes(this.className)) {
+                            eliminated.push(this.className);
+                        }
+                    } else {
+                        var index = eliminated.indexOf(this.className);
+                        if (index > -1) {
+                            eliminated.splice(index, 1);
+                        }
+                    }
+                    update("current");
+                });
+                $('#discrete-Color input[type=checkbox]').change(
+                function() {
+                    if (!this.checked) {
+                        if (!eliminated.includes(this.className)) {
+                            eliminated.push(this.className);
+                        }
+                    } else {
+                        var index = eliminated.indexOf(this.className);
+                        if (index > -1) {
+                            eliminated.splice(index, 1);
+                        }
+                    }
+                    update("current");
+                });
+
+            //force data
+            //for non overlapping points
+
+
+            $(".loader").hide();
+        }
+        var radius = 6,
+            padding = 1;
+        // Resolve collisions between nodes.
+        function collide(alpha) {
+            var quadtree = d3.geom.quadtree(cleanData);
+            return function(d) {
+                var r = d.radius + radius + padding,
+                    nx1 = d.x - r,
+                    nx2 = d.x + r,
+                    ny1 = d.y - r,
+                    ny2 = d.y + r;
+                quadtree.visit(function(quad, x1, y1, x2, y2) {
+                    if (quad.point && (quad.point !== d)) {
+                        var x = d.x - quad.point.x,
+                            y = d.y - quad.point.y,
+                            l = Math.sqrt(x * x + y * y),
+                            r = d.radius + quad.point.radius + (d.color !== quad.point.color) * padding;
+                        if (l < r) {
+                            l = (l - r) / l * alpha;
+                            d.x -= x *= l;
+                            d.y -= y *= l;
+                            quad.point.x += x;
+                            quad.point.y += y;
+                        }
+                    }
+                    return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
+                });
+            };
+        }
+        var rangeX;
+        var rangeY;
+
+        function update(state) {
+            if (variableListType[selectedX] == "number") {
+                if (state == "new") {
+                    rangeX = d3.extent(cleanData, function(d) {
+                        return d[selectedX];
+                    })
+                    $("#slider-range-X").slider({
+                        range: true,
+                        min: rangeX[0],
+                        max: rangeX[1],
+                        values: [rangeX[0],rangeX[1]],
+                        step: (rangeX[1] - rangeX[0])/100,
+                        slide: function(event, ui) {
+                            rangeX = [ui.values[0], ui.values[1]];
+                            update("current");
+                            if (selectedX == "created_on") {
+                                $("#amountX").val(ui.values[0] +
+                                    " - " + ui.values[1]);
+                            } else {
+                                $("#amountX").val(ui.values[0] +
+                                    " - " + ui.values[1]);
+                            }
+                        }
+                    });
+                }
+                $("#amountX").val($("#slider-range-X").slider("values", 0) +
+                    " - " + $("#slider-range-X").slider("values", 1));
+                x.domain(rangeX); //.nice();
+                currXScale = x;
+                currXAxis = xAxis;
+                $("#discrete-X").hide();
+                $("#slider-range-X").show();
+                $("#amountX").show();
+            } else {
+                if (selectedX == "created_on") {
+                    if (state == "new") {
+                        rangeX = d3.extent(cleanData, function(d) {
+                            return d[selectedX];
+                        })
+                        $("#slider-range-X").slider({
+                            range: true,
+                            min: rangeX[0],
+                            max: rangeX[1],
+                            step:(rangeX[1] - rangeX[0])/100,
+                            values: [rangeX[0], rangeX[1]],
+                            slide: function(event, ui) {
+                                rangeX = [ui.values[0], ui.values[1]];
+                                update("current");
+                                var date1 = new Date(ui.values[0]);
+                                var date2 = new Date(ui.values[1]);
+                                $("#amountX").val(d3.time.format("%d-%b-%y")(date1) + " - " + d3.time.format("%d-%b-%y")(date2));
+                            }
+                        });
+                        var date1 = new Date(rangeX[0]);
+                        var date2 = new Date(rangeX[1]);
+                        $("#amountX").val(d3.time.format("%d-%b-%y")(date1) + " - " + d3.time.format("%d-%b-%y")(date2));
+                    }
+                    xScale.domain(rangeX);
+                    //xB.domain(cleanData.map(function(d) { return d[selectedX]; }));
+                    currXAxis = xAxisB;
+                    currXScale = xScale;
+                    $("#discrete-X").hide();
+                    $("#slider-range-X").show();
+                    $("#amountX").show();
+                } else {
+                    xB.domain(cleanData.map(function(d) {
+                        return d[selectedX];
+                    }));
+                    //x.domain(d3.extent(cleanData, function(d) { return d[selectedX]; }))//.nice();
+                    currXAxis = xAxisA;
+                    currXScale = xB;
+                    $("#discrete-X").show();
+                    $("#slider-range-X").hide();
+                    $("#amountX").hide();
+                }
+            }
+            /*if (state[1] == current) {
+            } else */
+            if (variableListType[selectedY] == "number") {
+                if (state == "new") {
+                    rangeY = d3.extent(cleanData, function(d) {
+                        return d[selectedY];
+                    });
+                    $("#slider-range-Y").slider({
+                        range: true,
+                        min: rangeY[0],
+                        max: rangeY[1],
+                        step: (rangeY[1] - rangeY[0])/100,
+                        values: [rangeY[0], rangeY[1]],
+                        slide: function(event, ui) {
+                            rangeY = [ui.values[0], ui.values[1]];
+                            update("current");
+                            $("#amountY").val(ui.values[0] +
+                                " - " + ui.values[1]);
+
+                        }
+                    });
+                }
+                $("#amountY").val($("#slider-range-Y").slider("values", 0) +
+                    " - " + $("#slider-range-Y").slider("values", 1));
+                y.domain(rangeY) //.nice();
+                currYScale = y;
+                currYAxis = yAxis;
+                $("#discrete-Y").hide();
+                $("#slider-range-Y").show();
+                $("#amountY").show();
+            } else {
+                if (selectedY == "created_on") {
+                    if (state == "new") {
+                        rangeY = d3.extent(cleanData, function(d) {
+                            return d[selectedY];
+                        })
+                        $("#slider-range-Y").slider({
+                            range: true,
+                            min: rangeY[0],
+                            max: rangeY[1],
+                            step: (rangeY[1] - rangeY[0])/100,
+                            values: [rangeY[0], rangeY[1]],
+                            slide: function(event, ui) {
+                                rangeY = [ui.values[0], ui.values[1]];
+                                update("current");
+                                var date1 = new Date(ui.values[0]);
+                                var date2 = new Date(ui.values[1]);
+                                $("#amountY").val(d3.time.format("%d-%b-%y")(date1) + " - " + d3.time.format("%d-%b-%y")(date2));
+                            }
+                        });
+                        var date1 = new Date(rangeY[0]);
+                        var date2 = new Date(rangeY[1]);
+                        $("#amountY").val(d3.time.format("%d-%b-%y")(date1) + " - " + d3.time.format("%d-%b-%y")(date2));
+                    }
+                    yScale.domain(rangeY);
+                    currYAxis = yAxisB;
+                    currYScale = yScale;
+                    $("#discrete-Y").hide();
+                    $("#slider-range-Y").show();
+                    $("#amountY").show();
+                } else {
+                    yB.domain(cleanData.map(function(d) {
+                        return d[selectedY];
+                    }));
+                    currYAxis = yAxisA;
+                    currYScale = yB;
+                    $("#discrete-Y").show();
+                    $("#slider-range-Y").hide();
+                    $("#amountY").hide();
+                }
+            }
+
+            if (variableListType[selectedColor] == "number") {
+                if (state == "new") {
+                    rangeColor = d3.extent(cleanData, function(d) {
+                        return d[selectedColor];
+                    });
+                    $("#slider-range-Color").slider({
+                        range: true,
+                        min: rangeColor[0],
+                        max: rangeColor[1],
+                        step: (rangeColor[1] - rangeColor[0])/100,
+                        values: [rangeColor[0], rangeColor[1]],
+                        slide: function(event, ui) {
+                            rangeColor = [ui.values[0], ui.values[1]];
+                            update("current");
+                            $("#amountColor").val(ui.values[0] +
+                                " - " + ui.values[1]);
+
+                        }
+                    });
+                }
+                $("#amountColor").val($("#slider-range-Color").slider("values", 0) +" - " + $("#slider-range-Color").slider("values", 1));
+                $("#discrete-Color").hide();
+                $("#slider-range-Color").show();
+                $("#amountColor").show();
+            } else {
+                if (selectedColor == "created_on") {
+                    if (state == "new") {
+                        rangeColor = d3.extent(cleanData, function(d) {
+                            return d[selectedColor];
+                        })
+                        $("#slider-range-Color").slider({
+                            range: true,
+                            min: rangeColor[0],
+                            max: rangeColor[1],
+                            step: (rangeColor[1] - rangeColor[0])/100,
+                            values: [rangeColor[0], rangeColor[1]],
+                            slide: function(event, ui) {
+                                rangeColor = [ui.values[0], ui.values[1]];
+                                update("current");
+                                var date1 = new Date(ui.values[0]);
+                                var date2 = new Date(ui.values[1]);
+                                $("#amountColor").val(d3.time.format("%d-%b-%y")(date1) + " - " + d3.time.format("%d-%b-%y")(date2));
+                            }
+                        });
+                        var date1 = new Date(rangeColor[0]);
+                        var date2 = new Date(rangeColor[1]);
+                        $("#amountColor").val(d3.time.format("%d-%b-%y")(date1) + " - " + d3.time.format("%d-%b-%y")(date2));
+                    }
+                    $("#discrete-Color").hide();
+                    $("#slider-range-Color").show();
+                    $("#amountColor").show();
+                } else {
+                    $("#discrete-Color").show();
+                    $("#slider-range-Color").hide();
+                    $("#amountColor").hide();
+                }
+            }
+
+            if (variableListType[selectedColor] == "number" || selectedColor == "created_on") {
+                colorScale.linear.domain(d3.extent(cleanData, function(d) {
+                    return d[selectedColor]
+                }))
+                currColorScale = colorScale.linear;
+            } else {
+                currColorScale = colorScale.category;
+            }
+
+            function filtered(a) {
+                var status = "true";
+                /*if (a.undefined) {
+                    return status;
+                }*/
+                if (variableListType[selectedX] == "number" || selectedX == "created_on") {
+                    if (a[selectedX] < rangeX[0] || a[selectedX] > rangeX[1]) {
+                        status = "false";
+                    }
+                }
+                if (variableListType[selectedY] == "number" || selectedY == "created_on") {
+                    if (a[selectedY] < rangeY[0] || a[selectedY] > rangeY[1]) {
+                        status = "false";
+                    }
+                }
+                if (variableListType[selectedColor] == "number" || selectedColor == "created_on") {
+                    if (a[selectedColor] < rangeColor[0] || a[selectedColor] > rangeColor[1]) {
+                        status = "false";
+                    }
+                }
+                if (eliminated.includes(a["created_by"])) {
+                    status = "false";
+                }
+                if (childOnly) {
+                    if (!a.isChild)
+                        status = "false";
+                }
+                if (myDesignOnly) {
+                    console.log(myDesignOnly)
+                    if (loggedInUser != a.created_by)
+                        status = "false";
+                }
+                return status;
+            }
+            for (var i = 0; i < cleanData.length; i++) {
+                cleanData[i].undefined = false;
+                if (cleanData[i][selectedX] != null) {
+                    cleanData[i].x = currXScale(cleanData[i][selectedX]);
+                } else {
+                    cleanData[i].x = -Dwidth*0.1;
+                    //cleanData[i].undefined = true;
+                }
+                if (cleanData[i][selectedY] != null) {
+                    cleanData[i].y = currYScale(cleanData[i][selectedY]);
+                } else {
+                    cleanData[i].y = Dheight*1.2;
+                    //cleanData[i].undefined = true;
+                }
+                if (cleanData[i][selectedColor] != null) {
+                    cleanData[i].color = currColorScale(cleanData[i][selectedColor]);
+                } else {
+                    cleanData[i].color = "black";
+                    cleanData[i].undefined = true;
+                }
+                cleanData[i].filtered = filtered(cleanData[i]);
+            }
+            legend.set = [];
+            for (var i = 0; i < cleanData.length; i++) {
+                var val = cleanData[i][selectedColor];
+                if (variableListType[selectedColor] == "number") {
+                    if (!legend.set.includes(val) && cleanData[i].filtered == "true") {
+                        legend.set.push(val)
+                    }
+                } else {
+                    if (!legend.set.includes(val) && cleanData[i].filtered == "true") {
+                        legend.set.push(val)
+                    }
+                }
+                if (selectedX == "created_by") {
+                    if (!discrete.x.includes(cleanData[i][selectedX])) {
+                        discrete.x.push(cleanData[i][selectedX]);
+                    }
+                }
+                if (selectedY == "created_by") {
+                    if (!discrete.y.includes(cleanData[i][selectedY])) {
+                        discrete.y.push(cleanData[i][selectedY]);
+                    }
+                }
+                if (selectedColor == "created_by") {
+                    if (!discrete.color.includes(cleanData[i][selectedColor])) {
+                        discrete.color.push(cleanData[i][selectedColor]);
+                    }
+                }
+            }
+            legend.set.sort(sortNumber);
+            d3.selectAll("#legend").remove()
+            if (legend.set.length > 10 && variableListType[selectedColor] == "number" || selectedColor == "created_on") {
+                legend.segmented = true;
+                legend.min = legend.set[0];
+                legend.max = legend.set[legend.set.length - 1];
+                legend.incr = (legend.max - legend.min) / 10;
+                legend.set = [];
+                for (i = 0; i < 10; i++) {
+                    legend.set.push(legend.min + i * legend.incr);
+                }
+            } else {
+                legend.segmented = false;
+            }
+            legend.dom = d3.select("#legendContainer")
+                .append("svg:svg")
+                .attr("id", "legend")
+                .selectAll("text")
+                .data(legend.set)
+            legend.dom.enter().append("rect")
+                .attr("width", 10)
+                .attr("height", 10)
+                //.transition()
+                .attr("x", 0)
+                .attr("y", function(d, i) {
+                    console.log("text ", i, d);
+                    return 0 + i * 15;
+                }) // spacing
+                //.attr("fill",function(d) { return currColorScale(d[selectedColor])
+                .attr("fill", function(d) {
+                    console.log(currColorScale(d));
+                    return currColorScale(d)
+                })
+            legend.dom.enter().append("text")
+                .attr("x", 15)
+                .attr("y", function(d, i) {
+                    console.log("text ", d)
+                    return 10 + i * 15;
+                })
+                .attr("class", "legend")
+                // 		.style("fill", "#777" )
+                // .text(function(d){return d})
+                //legend.transition()
+                .style("fill", "#777")
+                //.text(function(d){return d[selectedColor];})
+                .text(function(d) {
+                    if (d == null) {
+                        return "undefined";
+                    }
+                    if (variableListType[selectedColor] == "number") {
+                        if (legend.segmented) {
+                            return d.toFixed(2) + " - " + (d + legend.incr).toFixed(2);
+                        } else {
+                            return d.toFixed(2);
+                        }
+                    } else if (selectedColor == "created_on") {
+                        var date1 = new Date(d);
+                        if (legend.segmented) {
+                            date2 = new Date(d + legend.incr);
+                            return d3.time.format("%d-%b-%y")(date1) + " - " + d3.time.format("%d-%b-%y")(date2);
+                        } else {
+                            return d3.time.format("%d-%b-%y")(date1);
+                        }
+                    } else {
+                        return d;
+                    }
+                })
+                //update circles
+            svg.selectAll("circle")
+                //.data(cleanData)  // Update with new data
+                .transition() // Transition from old to new
+                .duration(100) // Length of animation
+                .ease("linear") // Transition easing - default 'variable' (i.e. has acceleration), also: 'circle', 'elastic', 'bounce', 'linear'
+                .attr("cx", function(d) {
+                    return d.x;
+                })
+                .attr("cy", function(d) {
+                    console.log(d.y);
+                    return d.y;
+                })
+                //.style("fill", function(d) { return currColorScale(d[selectedColor]); })
+                .style("fill", function(d) {
+                    return d.color;
+                })
+                .style("visibility", function(d) {
+                    if (filtered(d) == "true") {
+                        console.log(true);
+                        return "visible";
+                    } else {
+                        console.log(false);
+                        return "hidden";
+                    }
+                })
+            svg.selectAll("image")
+                //.attr("href", function(d) { return d.image; })
+                .transition() // Transition from old to new
+                .duration(300)
+                .ease("quadOut")
+                //.attr("x", function(d) { return x(d.created_on); })
+                .attr("x", function(d) {
+                    return d.x - 100;
+                })
+                //.attr("x", function(d) { return currXScale(d[selectedX]); })
+                .attr("y", function(d) {
+                    return d.y - 100;
+                })
+                .style("visibility", function(d) {
+                    if (filtered(d) == "true") {
+                        return "visible";
+                    } else {
+                        return "hidden";
+                    }
+                })
+            force.resume();
+
+            //update Axis
+            //for x axis, there is rotation involved, so by default we remove first
+            svg.select(".x.axis").remove()
+            svg2.select(".x.axis").remove()
+            svg.select(".y.axis").remove()
+            svg2.select(".y.axis").remove()
+            if (variableListType[selectedX] == "text") {
+                svg.append("g")
+                    .attr("transform", "translate(0," + Dheight + ")")
+                    .attr("class", "x axis")
+                    .call(currXAxis)
+                    .selectAll("text")
+                    .attr("y", 0)
+                    .attr("x", -8)
+                    .attr("dy", ".35em")
+                    .attr("transform", "rotate(-45)")
+                    .style("text-anchor", "end");
+                svg.append("g")
+                    .attr("class", "y axis")
+                    .call(currYAxis)
+                    .selectAll("text")
+                    .attr("y", 0)
+                    .attr("x", -8)
+                    .attr("dy", ".35em")
+                    .style("text-anchor", "end");
+
+                svg2.append("g")
+                    .attr("transform", "translate(0," + Dheight + ")")
+                    .attr("class", "x axis")
+                    .call(currXAxis)
+                    .selectAll("text")
+                    .attr("y", 0)
+                    .attr("x", -8)
+                    .attr("dy", ".35em")
+                    .attr("transform", "rotate(-45)")
+                    .style("text-anchor", "end");
+                svg2.append("g")
+                    .attr("class", "y axis")
+                    .call(currYAxis)
+                    .selectAll("text")
+                    .attr("y", 0)
+                    .attr("x", -8)
+                    .attr("dy", ".35em")
+                    .style("text-anchor", "end");
+            } else {
+                svg.append("g")
+                    .attr("transform", "translate(0," + Dheight + ")")
+                    .attr("class", "x axis")
+                    .call(currXAxis)
+                svg2.append("g")
+                    .attr("transform", "translate(0," + Dheight + ")")
+                    .attr("class", "x axis")
+                    .call(currXAxis)
+                svg.append("g")
+                    .attr("class", "y axis")
+                    .call(currYAxis)
+                svg2.append("g")
+                    .attr("class", "y axis")
+                    .call(currYAxis)
+            }
+            svg.select(".y.axis").transition().duration(100).call(currYAxis)
+            svg2.select(".y.axis").transition().duration(100).call(currYAxis)
+
+            svg.select('.labelX').text(selectedX);
+            svg2.select('.labelX').text(selectedX);
+
+            svg.select('.labelY').text(selectedY);
+            svg2.select('.labelY').text(selectedY);
+            svg2.selectAll("image")
+                .transition() // Transition from old to new
+                .duration(300)
+                .ease("quadOut")
+                .attr("x", function(d) {
+                    return d.x - 100;
+                })
+                .attr("y", function(d) {
+                    return d.y - 100;
+                })
+                .style("visibility", function(d) {
+                    if (filtered(d) == "true") {
+                        return "visible";
+                    } else {
+                        return "hidden";
+                    }
+                })
+            svg2.selectAll("circle")
+                .transition() // Transition from old to new
+                .duration(100) // Length of animation
+                .ease("linear") // Transition easing - default 'variable' (i.e. has acceleration), also: 'circle', 'elastic', 'bounce', 'linear'
+                .attr("cx", function(d) {
+                    return d.x;
+                })
+                .attr("cy", function(d) {
+                    return d.y;
+                })
+                //.style("fill", function(d) { return currColorScale(d[selectedColor]); })
+                .style("fill", function(d) {
+                    return d.color;
+                })
+                .style("visibility", function(d) {
+                    if (filtered(d) == "true") {
+                        console.log(true);
+                        return "visible";
+                    } else {
+                        console.log(false);
+                        return "hidden";
+                    }
+                })
+
+        }
+        var showLegend = true;
+        $("#legendTick").change(function(event) {
+            if (this.checked) {
+                showLegend = true;
+                $('#legendContainer').show()
+            } else {
+                showLegend = false;
+                $('#legendContainer').hide()
+            }
+        });
+        var childOnly = false;
+        $("#childTick").change(function(event) {
+            if (this.checked) {
+                childOnly = true;
+                update("current")
+            } else {
+                childOnly = false;
+                update("current")
+            }
+        });
+        var myDesignOnly = false;
+        $("#myDesignTick").change(function(event) {
+            if (this.checked) {
+                myDesignOnly = true;
+                update("current")
+            } else {
+                myDesignOnly = false;
+                update("current")
+            }
+        });
+        $("#explorerOpt").change(function(event) {
+            if (this.checked) {
+                $("#thumbViewContainer").show();
+            } else {
+                $("#thumbViewContainer").hide();
+            }
+        });
+        var getDesignGraph = function(id) {
+            return new Promise(function(resolve, reject) {
+                var request = new XMLHttpRequest();
+                request.open('GET', '/getDesignGraph?username=' + username + '&id=' + id, true);
+                request.onload = function() {
+                    if (request.status >= 200 && request.status < 400) {
+                        resolve(request.responseText);
+                    } else {
+                        reject("error");
+                    }
+                };
+                request.onerror = function() {};
+                request.send();
+            });
+        };
+        var projectName;
+        window.onload = function() {
+            console.log("project page loaded")
+            getDesignGraph(project).then(function(data) {
+                var graphData = JSON.parse(data);
+                getInputVariable(graphData)
+                projectName = project
+                var config = {
+                    width: $(window).width(), // Width of the parent container
+                    height: $(window).height() * 0.8, // Height of the parent container
+                    margin: { // Margins that we need within our SVG
+                        top: 0,
+                        right: 0,
+                        bottom: 0,
+                        left: 0
+                    },
+                };
+                var dimensions = computeSvgSizeFromData(config),
+                    actualHeight = dimensions.height,
+                    actualWidth = dimensions.width;
+                setup();
+                $("#mainViewContainer").append('<svg id="mainView" width = "' + $(window).width() + '" height="' + $(window).height() * 0.8 + '" viewBox="0 0 ' + actualWidth + ' ' + actualHeight + '"></svg>');
+                var offsetX = //parseFloat(svg.attr("x"))+
+                    0 //parseFloat(actualWidth/2.0);
+                var offsetY = //parseFloat(600)+
+                    parseFloat(actualHeight / 2.0);
+                var scaleValue;
+                var heightRatio = ($(window).height() * 0.8) / actualHeight * 2;
+                var widthRatio = $(window).width() / actualWidth * 2
+                if (heightRatio < widthRatio)
+                    scaleValue = heightRatio
+                else {
+                    scaleValue = widthRatio
+                }
+                svg.attr("transform", "translate(" + offsetX + "," + offsetY + ") " + "scale(" + scaleValue + ") ");
+                $("#mainView").append(svg2.node())
+                $("#thumbViewContainer").append('<svg id="thumbView" class="thumbViewClass"><rect fill="#ffffff", x="0"  y="0" width="' + actualWidth + '" height="' + actualHeight + '"></rect></svg>');
+                svg2.attr("transform", "translate(" + offsetX + "," + offsetY + ") " + "scale(" + scaleValue + ") ");
+                $("#thumbView").append(svg.node())
+                thumbnailViewer({
+                    mainViewId: 'mainView',
+                    thumbViewId: 'thumbView'
+                });
+            }, function(status) { //error detection....
+                alert('Something went wrong.');
+            });
+        }
+    </script>
+
+</body>
+
+</html>
