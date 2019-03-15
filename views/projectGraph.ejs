@@ -463,16 +463,12 @@
         $("#filterColor").click(function() {
             $("#optionColor").show();
         });
-        var username = window.location.href.split('/')[4]
-        var loggedInUser = <%- JSON.stringify(data.username) %>;
+        var username = "vc"
+        var loggedInUser = "vc"
         //perhaps don't need to send the data?
         var project = <%- JSON.stringify(data.project) %>;
 
         //populateTopPanel
-        var urlModif = window.location.href.split('/');
-        var projectStringURL = 'http://' + urlModif[2] + '/' + urlModif[3] + '/' + urlModif[4] + '/' + urlModif[5]
-        col1Txt = '<p> <a class="button" href="../../../" >Project List </a> > <i>Current Project:</i> <b><a class="button" href="' + projectStringURL + '" >' + project + '</a> </b></p>'
-        $('#topPanel_col1').append(col1Txt);
         $('#topPanel_col2').append('<p>WELCOME <a>' + loggedInUser + '</a></p>');
 
         /*function filter(darray, min, max) {
@@ -1590,13 +1586,13 @@
                 }
                 svg.attr("transform", "translate(" + offsetX + "," + offsetY + ") " + "scale(" + scaleValue + ") ");
                 $("#mainView").append(svg2.node())
-                $("#thumbViewContainer").append('<svg id="thumbView" class="thumbViewClass"><rect fill="#ffffff", x="0"  y="0" width="' + actualWidth + '" height="' + actualHeight + '"></rect></svg>');
-                svg2.attr("transform", "translate(" + offsetX + "," + offsetY + ") " + "scale(" + scaleValue + ") ");
-                $("#thumbView").append(svg.node())
-                thumbnailViewer({
-                    mainViewId: 'mainView',
-                    thumbViewId: 'thumbView'
-                });
+                // $("#thumbViewContainer").append('<svg id="thumbView" class="thumbViewClass"><rect fill="#ffffff", x="0"  y="0" width="' + actualWidth + '" height="' + actualHeight + '"></rect></svg>');
+                // svg2.attr("transform", "translate(" + offsetX + "," + offsetY + ") " + "scale(" + scaleValue + ") ");
+                // $("#thumbView").append(svg.node())
+                // thumbnailViewer({
+                //     mainViewId: 'mainView',
+                //     thumbViewId: 'thumbView'
+                // });
             }, function(status) { //error detection....
                 alert('Something went wrong.');
             });

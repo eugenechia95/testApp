@@ -212,11 +212,10 @@ var contentList = [];
 var dataList = [];
 
 		var loggedInUser = "vc"
-		var project = "test"
-		var access = "Public"
+		var project = <%- JSON.stringify(data.project) %>;
+		var access = <%- JSON.stringify(data.access) %>;
 		var username = "vc"
 
-		$('#topPanel_col1').append(col1Txt);
 		$('#topPanel_col2').append('<p>WELCOME <a>' + loggedInUser + '</a></p>');
 		</script>
 

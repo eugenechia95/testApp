@@ -9,7 +9,7 @@ exports.getProject = function(username, projectName, access, index, cb) {
   process.nextTick(function() {
 
     //adding username for realname in database
-    projectName = "vc_test"
+    projectName = username + '_' + projectName;
     index = parseInt(index)
 
     mc.connect(dbName, function (err, db) {
@@ -40,7 +40,7 @@ exports.getProject = function(username, projectName, access, index, cb) {
   exports.getDesignGraph = function(username, projectName, cb) {
     process.nextTick(function() {
 
-      projectName = "vc_test"//username + '_' + projectName;
+      projectName = username + '_' + projectName;
 
       mc.connect(dbName, function (err, db) {
         if (err)
@@ -57,4 +57,23 @@ exports.getProject = function(username, projectName, access, index, cb) {
         })
       });
     });
+  }
+
+  //return current number of document in the collection
+  exports.getCollectionDocCount = function(collectionName, cb) {
+    process.nextTick(function() {
+
+      mc.connect(dbName, function (err, db) {
+        if (err)
+          return cb(err, "error in getting collection document count");
+
+        var collection = db.collection(collectionName);
+
+        collection.count({}, function (error, count) {
+
+          return cb(null, count);
+        });
+
+      })
+    })
   }

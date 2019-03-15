@@ -238,10 +238,7 @@ function draw3DSnaps(contentName, data, line, isProject){
   		'" ><img src="/images/goTo_icon.png" style="width:20px;height:20px;border:0;"></a></div>'
 
   		 $('#' + sceneID).append(topRightTxt);
-
-        $(document).on("click", '#'+buttonID, {ghDocName:meshObj[j]._id
-          , ghDocString:meshObj[j].data.ghDoc}, download);
-
+			 
         //$('#'+ buttonID).click({ghDocName:meshObj[j]._id, ghDocString:meshObj[j].data.ghDoc}, download) ;
 
 							//getting collective rating

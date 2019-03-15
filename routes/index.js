@@ -17,10 +17,9 @@ var options = {
 
 module.exports = function(){
 
-
   router.get('/', function(req, res) {
 
-		var result = {"username": "vc", "project": "test" }
+		var result = {"username": "vc", "project": "tower" }
 
 		res.render('projectGraph',{ data: result });
 
@@ -29,13 +28,72 @@ module.exports = function(){
 
 	router.get('/project', function(req, res) {
 
-		var result = {"username": "vc", "project": "test", "access": 'Private' }
+		var result = {"username": "vc", "project": "tower", "access": 'Public' }
 
 		res.render('project',{ data: result });
 		return;
 
 	});
 
+	//return projectGraph
+	router.get('/getDesignGraph', function(req, res) {
+		if (req.url.endsWith('/')) {
+			res.redirect(req.url.slice(0,-1))
+		}
+
+		//id is the project id
+		dataHandler.getDesignGraph(req.query.username, req.query.id,
+		function (err, result)
+		{
+			if (err)
+			{
+				console.log(result)
+				console.log(err)
+
+				res.status(500).send(result);
+			}
+			else {
+				//found list
+				//console.log(result)
+				res.json(result);
+			}
+		});
+	});
+
+	//return project by id
+	router.get('/getProject', function(req, res) {
+		if (req.url.endsWith('/')) {
+			res.redirect(req.url.slice(0,-1))
+		}
+
+		//query id is the project name
+		if(req.query.id != null)
+		{
+			dataHandler.getCollectionDocCount(req.query.username+'_'+req.query.id, function (err, count){
+
+			//dataHandler.getDesignNameList(req.query.username+'_'+req.query.id, function (err, nameList){
+
+				dataHandler.getProject(req.query.username, req.query.id, req.query.access, req.query.index,
+				function (err, result)
+				{
+					if (err)
+					{
+						console.log(result)
+						console.log(err)
+
+						res.status(500).send(result);
+					}
+					else {
+						var result2 = { data: result, count: count} //nameList.length
+						//found list
+						res.json(result2);
+						return;
+					}
+
+				});
+			});
+		}
+	});
 
 return router;
 }
