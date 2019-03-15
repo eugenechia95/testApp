@@ -431,9 +431,9 @@
     <script src="../../../js/lib/lodash.js"></script>
     <script src="../../../js/svg-pan-zoom.js" type="text/javascript"></script>
     <script src="../../../js/panzoom.js" type="text/javascript"></script>
+    <script src="../../../js/thumbnailViewer.js" type="text/javascript"></script>
 
     <script type="text/javascript">
-
         $(function() {
             $("#optionX").draggable();
             $("#optionY").draggable();
@@ -1586,13 +1586,13 @@
                 }
                 svg.attr("transform", "translate(" + offsetX + "," + offsetY + ") " + "scale(" + scaleValue + ") ");
                 $("#mainView").append(svg2.node())
-                // $("#thumbViewContainer").append('<svg id="thumbView" class="thumbViewClass"><rect fill="#ffffff", x="0"  y="0" width="' + actualWidth + '" height="' + actualHeight + '"></rect></svg>');
-                // svg2.attr("transform", "translate(" + offsetX + "," + offsetY + ") " + "scale(" + scaleValue + ") ");
-                // $("#thumbView").append(svg.node())
-                // thumbnailViewer({
-                //     mainViewId: 'mainView',
-                //     thumbViewId: 'thumbView'
-                // });
+                $("#thumbViewContainer").append('<svg id="thumbView" class="thumbViewClass"><rect fill="#ffffff", x="0"  y="0" width="' + actualWidth + '" height="' + actualHeight + '"></rect></svg>');
+                svg2.attr("transform", "translate(" + offsetX + "," + offsetY + ") " + "scale(" + scaleValue + ") ");
+                $("#thumbView").append(svg.node())
+                thumbnailViewer({
+                    mainViewId: 'mainView',
+                    thumbViewId: 'thumbView'
+                });
             }, function(status) { //error detection....
                 alert('Something went wrong.');
             });
