@@ -5,6 +5,56 @@ var dbName = 'mongodb://localhost:27017/project2'
 var ObjectId = require('mongodb').ObjectID;
 exports.mc = mc;
 
+exports.getDesignTree = function(username, projectName, cb) {
+  process.nextTick(function() {
+
+    projectName = username + '_' + projectName;
+
+    mc.connect(dbName, function (err, db) {
+      if (err)
+        return cb(err, "error connecting to DB to get design tree: " + dbName);
+
+      var collection = db.collection(projectName);
+
+      function list_to_tree(list) {
+          var map = {}, node, roots = [], i;
+          for (i = 0; i < list.length; i += 1) {
+              map[list[i]._id] = i;//; // initialize the map
+              list[i].children = []; // initialize the children
+          }
+          for (i = 0; i < list.length; i += 1) {
+              node = list[i];
+
+              if (node.parent !== "null") {
+                  //check if there is multi parents
+                  if (node.parent.indexOf(',') == -1 && typeof map[node.parent] !== 'undefined')
+                    list[map[node.parent]].children.push(node);
+                  //multi parents disabled for now
+                  // else {
+                  //   totalParent = node.parent.split(',')
+                  //   for(j=0;j<totalParent.length;j++)
+                  //   {
+                  //     list[map[totalParent[j]]].children.push(node);
+                  //   }
+                  // }
+              } else {
+                  roots.push(node);
+              }
+          }
+          return roots;
+      }
+
+      collection
+        .find({}).project({"data.ghDoc": 0, "data.mesh":0}).toArray(function (err, result) {
+
+        if (err) return cb(null, null);
+
+        return cb(null, list_to_tree(result));//
+      })
+    });
+  });
+}
+
 exports.getProject = function(username, projectName, access, index, cb) {
   process.nextTick(function() {
 

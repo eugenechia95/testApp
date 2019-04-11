@@ -35,6 +35,41 @@ module.exports = function(){
 
 	});
 
+	router.get('/tree', function(req, res) {
+
+		var result = {"username": "vc", "project": "tower"}
+
+		res.render('projectTree',{ data: result });
+		return;
+
+	});
+
+	//return projectTree
+	router.get('/getDesignTree', function(req, res) {
+		if (req.url.endsWith('/')) {
+			res.redirect(req.url.slice(0,-1))
+		}
+
+		//id is the project id
+		dataHandler.getDesignTree(req.query.username, req.query.id,
+		function (err, result)
+		{
+			if (err)
+			{
+				console.log(result)
+				console.log(err)
+
+				res.status(500).send(result);
+			}
+			else {
+				//found list
+				//console.log(result)
+				res.json(result);
+			}
+		});
+	});
+
+
 	//return projectGraph
 	router.get('/getDesignGraph', function(req, res) {
 		if (req.url.endsWith('/')) {
