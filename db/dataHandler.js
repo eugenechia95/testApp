@@ -5,6 +5,59 @@ var dbName = 'mongodb://localhost:27017/project2'
 var ObjectId = require('mongodb').ObjectID;
 exports.mc = mc;
 
+//note: each project is a collection in the database
+exports.getDesign = function(username, projectName, designID, cb) {
+
+  process.nextTick(function() {
+
+    projectName = username + '_' + projectName;
+
+    mc.connect(dbName, function (err, db) {
+      if (err)
+        return cb(err, "error connecting to get design project: " + dbName);
+
+      var collection = db.collection(projectName);
+
+      collection.findOne({ _id: designID}, function (err, result) {
+
+        if (err)
+          return cb(err, "error finding design: " + designID);
+
+        if(result)
+          console.log("design found: " + designID);
+        else
+          console.log("design not found: " + designID)
+
+        return cb(null, result);
+
+      })
+    });
+  });
+
+}
+
+//return the list of all designs in this project
+exports.getDesignNameList = function(collectionName, cb) {
+  process.nextTick(function() {
+
+    mc.connect(dbName, function (err, db) {
+      if (err) return cb(null, null);
+
+      var collection = db.collection(collectionName);
+
+      collection.find({}).project({_id:1}).toArray(function (err, result) {
+
+        //if not found, just return 0 - no design but collection exist (not possible unless database is compromised)
+        if(result.length == 0)
+          return cb(null, 0);
+        else {
+          return cb(null, result);
+        }
+      })
+    })
+  })
+}
+
 exports.getDesignTree = function(username, projectName, cb) {
   process.nextTick(function() {
 

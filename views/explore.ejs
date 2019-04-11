@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <style>
+        body {
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            background: hsl(0, 0%, 10%);
+        }
+
+        p {
+            margin: 0;
+            padding: 0;
+        }
+
+        .left,
+        .right {
+            position: absolute;
+            color: #404040;
+            font-family: Geneva, sans-serif;
+        }
+
+        .left {
+            bottom: 1em;
+            left: 1em;
+            text-align: left;
+        }
+
+        .right {
+            top: 0;
+            right: 0;
+            text-align: right;
+            color: #FA8072;
+        }
+
+        a {
+            color: #0080ff;
+        }
+
+        #rightPanel {
+            font-family: Geneva, sans-serif;
+            padding: 10px 10px 10px 10px;
+            position: fixed;
+            right: 0;
+            top: 10%;
+            width: 20%;
+            height: 90%;
+            background: #dfdfdf;
+            z-index: 1;
+            overflow-y: scroll;
+        }
+
+        .rightPanelBottom {
+            height:auto;
+            font-family: Geneva, sans-serif;
+            padding: 10px 10px 10px 10px;
+            color: #7a7979;
+            position: relative;
+            right: 0;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.0);
+            z-index: 1;
+        }
+
+
+
+.discussionPanel {
+    font-family: Geneva, sans-serif;
+    padding: 10px 10px 10px 10px;
+    background: #dfdfdf;
+    position: fixed;
+    bottom: 0px;
+    right: 0px;
+    box-sizing: content-box;
+    width: calc(20% - 20px);
+    height: auto;
+    z-index: 1;
+}
+
+        #ghGraphPanel {
+            position: fixed;
+            left: 0;
+            top: inherit;
+            width: 80%;
+            height: 90%;
+            background-color: rgba(255, 255, 255, 0.0);
+            -moz-opacity: .80;
+            filter: alpha(opacity=80);
+            opacity: .80;
+            z-index: 2;
+        }
+
+        #helpPanel {
+            z-index: 6;
+        }
+
+        svg {
+            display: block;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            /*height: 100%;*/
+        }
+
+        .panel-body {
+            background: #dfdfdf;
+        }
+
+        body {
+            background-color: white;
+        }
+
+        textarea {
+            resize: none;
+            outline: none;
+            width: 100%;
+            /*394px;*/
+            font-family: tahoma;
+            background: #f9f9f9;
+        }
+
+        textarea:focus {
+            background: #fff;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            /*400px;*/
+            padding: 5px 0px;
+            font-weight: bold;
+            margin-top: -6px;
+        }
+
+        .content {
+            width: 100%;
+        }
+
+        .comments {
+            width: 100%;
+        }
+
+        .insert-text {
+            position: relative;
+        }
+
+        .insert-text .loading {
+            position: absolute;
+            bottom: -25px;
+            display: none;
+        }
+
+        .total-comment {
+            margin-top: 30px;
+            display: block;
+            position: relative;
+        }
+
+        .total-comment:before {
+            content: "Total comments: ";
+            font-weight: bold;
+        }
+
+        .list-comments {
+            border: 1px solid #ccc;
+            background: #f0f0f0;
+            margin-bottom: 140px;
+        }
+
+        .list-comments > div {
+            word-wrap:break-word;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .list-comments > div:last-child {
+            border-bottom: none;
+        }
+
+        .editor {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .editor-header {
+            border-bottom: 1px solid #ccc;
+        }
+
+        .editor-header a {
+            display: inline-block;
+            padding: 10px;
+            color: #666;
+        }
+
+        .editor-header a:hover {
+            color: #000;
+        }
+
+        .editor-content {
+            padding: 10px;
+            outline: none;
+            min-height: 80px;
+            background: #f9f9f9;
+            border-radius: 0px 0px 5px 5px;
+        }
+
+        .editor-content:focus {
+            background: #fff;
+        }
+
+        b {
+            font-weight: bold;
+        }
+
+        i {
+            font-style: italic;
+        }
+
+        p {
+            line-height: 20px;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        [data-role="bold"] {
+            font-weight: bold;
+        }
+
+        [data-role="italic"] {
+            font-style: italic;
+        }
+
+        [data-role="underline"] {
+            text-decoration: underline;
+        }
+
+        [class^="menu"] {
+            position: relative;
+            top: 6px;
+            display: block;
+            width: 27px;
+            height: 2px;
+            margin: 0 auto;
+            background: #999;
+        }
+
+        [class^="menu"]:before {
+            content: '';
+            top: -5px;
+            width: 80%;
+            position: relative;
+            display: block;
+            height: 2px;
+            margin: 0 auto;
+            background: #999;
+        }
+
+        [class^="menu"]:after {
+            content: '';
+            top: 3px;
+            width: 80%;
+            position: relative;
+            display: block;
+            height: 2px;
+            margin: 0 auto;
+            background: #999;
+        }
+
+        .menu-left {
+            margin-right: 5px;
+        }
+
+        .menu-left:before {
+            margin-right: 5px;
+        }
+
+        .menu-left:after {
+            margin-right: 5px;
+        }
+
+        .menu-right {
+            margin-left: 5px;
+        }
+
+        .menu-right:before {
+            margin-left: 5px;
+        }
+
+        .menu-right:after {
+            margin-left: 5px;
+        }
+
+        .centerDiv {
+            width: 25%;
+            position: fixed;
+            background-color: rgba(0, 0, 0, 0.3);
+            top: 50%;
+            left: 45%;
+            margin-top: -100px;
+            margin-left: -100px;
+            padding: 30px 30px 30px 30px;
+        }
+
+        #helpBar {
+            position: fixed;
+            bottom: 0;
+            left: 10px;
+            color: #7a7979;
+        }
+
+        #ratingPanel {
+            font-size: 10pt;
+        }
+
+        #ghSVG2 {
+            top: 0px !important;
+            left: 0px !important;
+        }
+
+        #notesText {
+            display:block;
+        }
+
+        .loader {
+            position: relative;
+            left: calc(50% - 25px);
+            top: calc(50% - 25px);
+            align-content: center;
+            border: 5px solid #f3f3f3;
+            /* Light grey */
+            border-top: 5px solid #3498db;
+            /* Blue */
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            -webkit-animation: spin 1s linear infinite;
+            /* Safari */
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        ::-webkit-scrollbar {
+    width: 0px;  /* remove scrollbar space */
+    background: transparent;  /* optional: just make scrollbar invisible */
+}
+/* optional: show position indicator in red */
+::-webkit-scrollbar-thumb {
+    background: #FF0000;
+}
+
+.br-wrapper {
+    position: relative;
+    float: left;
+}
+
+#ratingPanel p{
+    float: left;
+}
+    </style>
+
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/rating/fontawesome-stars-o.css">
+    <link rel="stylesheet" href="/css/rating/bootstrap-stars.css">
+    <link rel="stylesheet" href="/css/rating/bars-1to10.css">
+    <link rel="stylesheet" href="/css/jquery-comments.css">
+
+    <!-- load libraries -->
+    <script type="text/javascript" src="/js/lib/d3.v3.min.js"></script>
+    <script type="text/javascript" src="/js/lib/three.min.js"></script>
+    <script type="text/javascript" src="/js/lib/jquery-1.11.3.js"></script>
+
+    <script type="text/javascript" src="/js/lib/jquery.textcomplete.js"></script>
+    <script type="text/javascript" src="/js/lib/jquery-comments.js"></script>
+
+    <script type="text/javascript" src="/js/OrbitControls.js"></script>
+    <!-- <script type="text/javascript" src="/js/downloadDoc.js"></script> -->
+    <script type="text/javascript" src="/js/xmlParser.js"></script>
+    <script type="text/javascript" src="/js/Detector.js"></script>
+    <script type="text/javascript" src="/js/draw3D.js"></script>
+		<!-- <script type="text/javascript" src="/js/lib/fileSaver.js"></script> -->
+		<script type="text/javascript" src="/js/svg-pan-zoom.js"></script>
+
+    <!-- Init jquery-comments -->
+    <script type="text/javascript">
+        $(document).ready(function() {
+            Number.prototype.pad = function(size) {
+  var s = String(this);
+  while (s.length < (size || 2)) {s = "0" + s;}
+  return s;
+}
+            $(".editor-header a").click(function(e) {
+                e.preventDefault();
+
+                var _val = $(this).data("role"),
+                    _sizeValIn = parseInt($(this).data("size-val") + 1),
+                    _sizeValRe = parseInt($(this).data("size-val") - 1),
+                    _size = $(this).data("size");
+                if (_size == "in-size") {
+                    document.execCommand(_val, false, _sizeValIn + "px");
+                } else {
+                    document.execCommand(_val, false, _sizeValRe + "px");
+                }
+            });
+        });
+
+        $(document).ready(function() {
+            var $text = $("#text"),
+                $submit = $("input[type='submit']"),
+                $listComment = $(".list-comments"),
+                $loading = $(".loading"),
+                _data,
+                $totalCom = $(".total-comment");
+
+            if (design.comments != undefined) {
+                //reverse
+                for (var i = design.comments.length - 1; i >= 0; i--) {
+                    var currentDate = new Date(design.comments[i].created_on)
+                    // var second = currentDate.getSeconds() not needed yet
+                    var minute = (currentDate.getMinutes()).pad(2)
+                    var hour = (currentDate.getHours()).pad(2)
+                    var day = currentDate.getDate()
+                    var month = currentDate.getMonth() + 1
+                    var year = currentDate.getFullYear()
+
+                    $listComment.append("<div>" + design.comments[i].text + '</br><b><small>by ' + design.comments[i].created_by + ' on ' + day + "/" + month + "/" + year + " " + hour + ':' + minute + "</small></b></div>");
+                }
+            } else {
+                $totalCom.hide();
+            }
+
+            $totalCom.text($(".list-comments > div").length);
+
+            $($submit).click(function() {
+                if ($text.html() == "") {
+                    alert("Please write a comment!");
+                    $text.focus();
+                } else {
+                    _data = $text.html();
+
+                    insertComment(_data).then(function(data) {
+
+                        // $loading.show().fadeOut(300);
+                        var currentDate = new Date()
+                        // var second = currentDate.getSeconds() not needed yet
+                        var minute = (currentDate.getMinutes()).pad(2)
+                        var hour =  (currentDate.getHours()).pad(2)
+                        var day = currentDate.getDate()
+                        var month = currentDate.getMonth() + 1
+                        var year = currentDate.getFullYear()
+
+
+                        $listComment.prepend("<div>" + _data + '</br><b><small>by ' + loggedInUser + ' on ' + day + "/" + month + "/" + year + ' '+ hour + ':' + minute +"</small></b></div>");
+                        $text.html("");
+                        var length = $(".list-comments > div").length;
+                        if (length==1) {
+                            $totalCom.show()
+                        }
+                        $totalCom.text(length);
+
+                    })
+
+                }
+            });
+        });
+    </script>
+
+</head>
+
+<body>
+
+    <div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-10" id="topPanel_col1"></div>
+                <div class="col-md-2" id="topPanel_col2"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="ghGraphPanel" style="display: none;">
+      <!-- <div class="loader" style="display: none;"></div> -->
+    </div>
+
+
+    <div id="helpPanel" class="centerDiv" style="display: none;">
+        <h4>Toogle Menu: </h4>
+        <p>
+            [ W ] for wireframe </br>
+            [ Space bar ] for 3D </br>
+            [ G ] for Graph </br>
+            <span class="privateAccess">
+			[ H ] for Parent Difference Graph </br> </span> [ I ] for Information Panel </br>
+            <span class="privateAccess">
+			[ S ] for Next Model </br>
+			[ A ] for Prev Model </br> </span>
+        </p>
+
+        <div id="votingSettings">
+            <p>
+                <label class="form-check-label">
+                    <input id="allowVoteCB" class="form-check-input" type="checkbox" value=""> Allow Voting
+                </label>
+            </p>
+            <p>
+                <label class="form-check-label">
+                    <input id="showAverageCB" class="form-check-input" type="checkbox" value=""> Show Average Voting
+                </label>
+            </p>
+        </div>
+    </div>
+    <!-- <div class="right" id="idText" >
+	</div> -->
+    <div id="rightPanel">
+        <div id="notesText"></div>
+        <div class="rightPanelBottom" style="display: none;">
+
+            <div id="ratingPanel" style="display: none;" class="privateAccess">
+                    <p>Your rating: &nbsp; </p><select id="example">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                </select>
+            </div>
+            <div id="averageRatingInfo" style="display: none;">Average rating of X people :</div>
+
+        </div>
+
+        <span class="total-comment"></span>
+        <div class="list-comments">
+            <!-- <div>Hello!</div> -->
+        </div>
+
+        <!-- id="comments-container" -->
+        <div class="discussionPanel" style="display: none;">
+            <div class="content">
+                <div class="comments">
+                    <div id="commentEditor" class="editor privateAccess">
+                        <div id="text" class="editor-content" contenteditable>
+                        </div>
+                    </div>
+                    <div class="insert-text privateAccess">
+                        <span class="loading">Loading...</span>
+                        <p id="commentButton">
+                            <input type="submit" value="Comment" />
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="helpBar">
+        <p>Press 'Esc' for Toggle Menu -- Toggle 'G' to Disable Graph and Interact </p>
+    </div>
+
+    <script>
+
+        // var getIndividualRating = function(id, index) {
+        //     return new Promise(function(resolve, reject) {
+        //         var request = new XMLHttpRequest();
+        //         request.open('GET', '/getIndividualRating?username=' + username + '&id=' + id + '&index=' + index, true);
+        //         request.onload = function() {
+        //             if (request.status >= 200 && request.status < 400) {
+        //                 resolve(request.responseText);
+        //             } else {
+        //                 reject("error");
+        //             }
+        //         };
+        //         request.onerror = function() {};
+        //         request.send();
+        //     });
+        // };
+
+        function formatDate(date) {
+            var monthNames = [
+                "Jan", "Feb", "Mar",
+                "Apr", "May", "Jun", "Jul",
+                "Aug", "Sep", "Oct",
+                "Nov", "Dec"
+            ];
+
+            var day = date.getDate();
+            var monthIndex = date.getMonth();
+            var year = date.getFullYear();
+            var hours = (date.getHours() < 10 ? '0' : '') + date.getHours();
+            var minutes = (date.getMinutes() < 10 ? '0' : '') + date.getMinutes();
+
+            return day + ' ' + monthNames[monthIndex] + ' ' + year + ' ' + hours + ':' + minutes;
+        }
+
+        function RemoveLastDirectoryPartOf(the_url) {
+            var the_arr = the_url.split('/');
+            the_arr.pop();
+            return (the_arr.join('/'));
+        }
+
+        // var username = window.location.href.split('/')[4]
+        // var loggedInUser = <%- JSON.stringify(data.username) %>;
+        var username = "vc"
+        var loggedInUser = "vc"
+        var design = <%- JSON.stringify(data.design) %>;
+        var project = "tower"
+        var maxDoc = parseInt(<%- JSON.stringify(data.maxDoc) %>);
+        var xml2 = <%- JSON.stringify(data.xml2) %>;
+        var nameList = <%- JSON.stringify(data.nameList) %>;
+
+        var canvasName = "3DCanvas";
+
+        // //rating panel and discussion panel are only for viewing in public mode
+        // if (loggedInUser == "anonymous") {
+        //     // $('#commentButton').hide()
+        //     // $('#commentEditor').hide()
+        //     $(".privateAccess").hide()
+        // } else {
+        //     //get individual value - 0 is just dummy here, not used
+        //     getIndividualRating(design._id, 0).then(function(data) {
+        //         var data = JSON.parse(data)
+        //
+        //         if (data.rate != "0") {
+        //             //console.log(data.rate)
+        //             $("#example").val(parseInt(data.rate))
+        //         } else {
+        //             $("#example").val(0)
+        //         }
+        //
+        //         $(function() {
+        //             $('#example').barrating({
+        //                 theme: 'bars-1to10' //'bars-1to10'fontawesome-stars' -- if font awesome isn't loading, the stars wont load
+        //             });
+        //         });
+        //
+        //     });
+        // }
+
+        //populateTopPanel
+        var urlModif = window.location.href.split('/');
+        var projectStringURL = 'http://' + urlModif[2] + '/' + urlModif[3] + '/' + urlModif[4] + '/' + urlModif[5]
+        col1Txt = '<p> <a class="button" href="../../../" >Project List </a> > <i>Current Project:</i> <b><a class="button" href="' + projectStringURL + '" >' + project + '</a> </b>'
+        col1Txt += ' > <i>Go to:</i> <b><a class="button" href="' + projectStringURL + '/tree" >' + "treeView" + '</a> </b> / <b><a class="button" href="' + projectStringURL + '/graph" >' + "graphView" + '</a> </b></p>'
+
+        $('#topPanel_col1').append(col1Txt);
+        $('#topPanel_col2').append('<p>WELCOME <a>' + loggedInUser + '</a></p>');
+
+        //setting up information about the 3d model
+        // document.getElementById("idText").innerHTML = design._id;
+        //flatten space if there is space
+        var downloadButtonID = design._id.replace(/\s/g, '');
+        var notesText = "<span style='font-size:20px; font-weight: bold;'>" + design._id + '</span>&nbsp;&nbsp;<a class="button" id="' + downloadButtonID + '">' +
+            '<i class="fa fa-download" aria-hidden="true"></i></a></br></br><i><b>' + design.data.notes + "</b></i></br></br>";
+
+        // $(document).on("click", '#' + downloadButtonID, {
+        //     ghDocName: design._id,
+        //     ghDocString: design.data.ghDoc,
+        //     projectName: username +'_' + project,
+        //     username: loggedInUser
+        // }, download);
+
+        if (design.data.inputData != undefined) {
+            for (var i = 0; i < design.data.inputData.length; i++) {
+                notesText += design.data.inputData[i].Key + ' : ' + design.data.inputData[i].Value + '<br>';
+            }
+        }
+
+        notesText += '<br><i class="fa fa-user-circle-o" aria-hidden="true"></i>&nbsp' + design.created_by + ' on ' + formatDate(new Date(design.created_on)) + '</br>parent: ' + design.parent + '<br>'
+
+        document.getElementById("notesText").innerHTML = notesText;
+
+        //button to hide divs
+        $(document).keyup(function(e) {
+            if (e.which == 27)
+                $('#helpPanel').toggle(); // esc
+
+            // if (key == 105) {
+            // 		//space bar for information panel
+            // 		$('#helpPanel').toggle();
+            // }
+        });
+//$('#ghGraphPanel').toggle();
+        $(document).keypress(function(e) {
+
+            if (!$("#text").is(":focus")) //as long as the change doesnt come from the textbox
+            {
+                var key = e.keyCode;
+
+                if (key == 103 || key == 71) { //G is 71? or 103??
+                    //toggle for graph (g)
+
+                    // if($('#ghGraphPanel').find("svg").length == 0)
+                    //   $(".loader").show();
+                    if ($('#ghGraphPanel').find("svg").length == 0)  //only draw when no svg yet
+                    {
+
+                      //probably put this inside drawGHGraph??
+                      $('#ghGraphPanel').append('<div class="loader"></div>')
+                      $('#ghGraphPanel').show()
+
+                      setTimeout(function(){
+                        drawGHGraph(parseXML(design.data.ghDoc))
+                        if (xml2 != null) {
+                            //console.log("has parent")
+                            //console.log(xml2)
+                            drawGHGraphDiff(findDifference(design.data.ghDoc, xml2))
+                        }
+                        svgPanZoom("#main", {
+                                  zoomEnabled: true,
+                                  controlIconsEnabled: false
+                                });
+
+                        $(".loader").hide();
+                      },50)
+
+                    }
+                    else {
+                      $('#ghGraphPanel').toggle();
+                    }
+
+                } else if (key == 104 || key == 72) {
+                    //toggle for graph (h)
+
+                    if (d3.selectAll("#ghSVG3").style("visibility") == "visible")
+                      d3.selectAll("#ghSVG3").attr("visibility", "hidden");
+                    else {
+                      d3.selectAll("#ghSVG3").attr("visibility", "visible");
+                    }
+
+                } else if (key == 32) {
+                    //space bar for 3D toggle
+                    $('#' + canvasName).toggle();
+                } else if (key == 105 || key == 73) {
+                    //I for information panel
+                    $('#rightPanel').toggle();
+                } else if (key == 115 || key == 83) { //115 = s - next
+
+									if (typeof nameList !== 'undefined')
+                    if (nameList != "") {
+                        var url = $(location).attr('href');
+                        window.location.href = RemoveLastDirectoryPartOf(url) + '/' + nameList.after._id
+                    }
+                } else if (key == 97 || key == 65) { //97 = a - prev
+
+									if (typeof nameList !== 'undefined')
+                    if (nameList != "") {
+                        var url = $(location).attr('href');
+                        window.location.href = RemoveLastDirectoryPartOf(url) + '/' + nameList.before._id
+                    }
+                }
+                //status= "outside"; //change back
+            }
+        });
+    </script>
+
+    <script src="/js/lib/jquery.barrating.min.js"></script>
+
+    <script type="text/javascript">
+        function updateAverageRating(voteCount, rate) {
+            //hide or show discussion and rating panel based on this design setting
+            var peopleOrPerson;
+            if (voteCount == undefined) {
+                voteCount = 0
+                rate = 0
+                peopleOrPerson = "person"
+            } else {
+                //console.log(voteCount)
+                voteCount = voteCount
+                    //rate = design.rate
+
+                if (voteCount > 1)
+                    peopleOrPerson = "people"
+                else {
+                    peopleOrPerson = "person"
+                }
+            }
+
+            $("#averageRatingInfo").text("Average rating of " + voteCount + " " + peopleOrPerson + " : " + rate);
+        }
+
+        $("#example").change(function() {
+            //console.log(username, project, design._id, $("#example").val())
+
+            //send value to server here
+            var pName = username + '_' + project;
+            $.post("/insertRating", {
+                    username: loggedInUser,
+                    projectName: pName,
+                    designID: design._id,
+                    rating: $("#example").val()
+                },
+                function(data) {
+                    updateAverageRating(data.voteCount, data.rating);
+                });
+
+        });
+
+        //  $('#ratingPanel').hide()
+        //$('#helpPanel').hide()
+        //  $('.discussionPanel').hide()
+        $('#votingSettings').hide()
+
+        var updateDesignSettings = function(key, value) {
+            return new Promise(function(resolve, reject) {
+                var request = new XMLHttpRequest();
+                request.open('POST', '/updateDesign?username=' + username + '&project=' + project + '&designID=' + design._id + '&key=' + key + '&value=' + value, true);
+
+                request.onload = function() {
+                    if (request.status >= 200 && request.status < 400) {
+                        resolve(request.responseText);
+                    } else {
+                        reject("error");
+                    }
+                };
+                request.onerror = function() {};
+                request.send();
+            });
+        };
+
+        var insertComment = function(comments) {
+            return new Promise(function(resolve, reject) {
+                var request = new XMLHttpRequest();
+                request.open('POST', '/insertComment?username=' + username + '&project=' + project + '&designID=' + design._id, true);
+
+                request.setRequestHeader("Content-Type", "application/json");
+                request.onload = function() {
+                    if (request.status >= 200 && request.status < 400) {
+                        resolve(request.responseText);
+                        //resolve(comments);
+                    } else {
+                        reject("error");
+                    }
+                };
+                request.onerror = function() {};
+
+                request.send(JSON.stringify({
+                    comments: comments
+                }));
+            });
+        };
+
+        window.onload = function() {
+                updateAverageRating(design.voteCount, design.rate);
+                draw3D(design, canvasName);
+
+                //current mechanism has already sent ghDoc when page is sent; redownload isnt needed
+                //only allow show if current user is the creator of the design
+                if (loggedInUser == design.created_by) {
+                    $('#votingSettings').show();
+
+                    //load the SETTINGS
+                    if (typeof(design) != undefined && design.voting == "1")
+                        $('#allowVoteCB').prop("checked", true)
+
+                    if (typeof(design) != undefined && design.showVote == "1")
+                        $('#showAverageCB').prop("checked", true)
+                }
+
+                $('#allowVoteCB').change(function() {
+
+                    var key = "voting";
+                    var value = $('#allowVoteCB').prop("checked");
+
+                    if (value == true)
+                        value = 1
+                    else {
+                        value = 0
+                    }
+
+                    //send current state to update the web
+                    updateDesignSettings(key, value).then(function(data) {
+                        //console.log(data);
+                        location.reload(); //refresh page
+                    });
+                })
+
+                $('#showAverageCB').change(function() {
+
+                    var key = "showVote";
+                    var value = $('#showAverageCB').prop("checked");
+
+                    if (value == true)
+                        value = 1
+                    else {
+                        value = 0
+                    }
+
+                    //send current state to update the web
+                    updateDesignSettings(key, value).then(function(data) {
+                        //console.log(data);
+                        location.reload(); //refresh page
+
+                    });
+                })
+
+                if (typeof(design) != undefined && design.voting == "1") {
+                    $('.rightPanelBottom').show()
+                    if (loggedInUser != "anonymous")
+                        $('#ratingPanel').show()
+                    $('.discussionPanel').show()
+                }
+
+                if (typeof(design) != undefined && design.showVote == "1") {
+                    $('.rightPanelBottom').show()
+                    $("#averageRatingInfo").show()
+                }
+                // else {
+                // 	$( "#averageRatingInfo" ).hide()
+                // }
+
+            }
+
+    </script>
+
+</body>
+
+</html>
