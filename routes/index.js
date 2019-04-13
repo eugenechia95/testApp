@@ -5,6 +5,34 @@ var async = require('async');
 
 var dataHandler = require('../db/dataHandler');
 
+var redis = require('redis');
+var client = redis.createClient();
+
+client.on('connect',()=>console.log('Redis connected'));
+
+client.on('error', function (err) {
+  console.log('Error ' + err)
+})
+
+
+/*var CacheWare = (req, res, next) => {
+    const key = req.url
+    client.get(key, (err, result) => {
+        if (err == null && result != null) {
+            console.log("From Cache")
+            res.send(result)
+        } else {
+            res.sendResponse = res.send
+            res.send = (body) => {
+                client.set(key, body, (err, reply) => {
+                    if (reply == 'OK')
+                        res.sendResponse(body)
+                })
+            }
+            next()
+        }
+    })
+}*/
 
 //options are needed to serve static html
 var options = {
@@ -19,19 +47,40 @@ module.exports = function(){
 
   router.get('/', function(req, res) {
 
-		var result = {"username": "vc", "project": "tower" }
-
-		res.render('projectGraph',{ data: result });
+        const key = req.url;
+        client.get(key, (err, result) => {
+        if (err == null && result != null) {
+            console.log("From Cache");
+            res.send(result);
+        } else {console.log("Not in cache")
+            var result = {"username": "vc", "project": "tower" }
+            res.render('projectGraph',{ data: result }, function(err, html) {
+            console.log("Rendering");
+            res.send(html);
+            client.set(key, html);
+            });
+               }
+        })
 
 		return;
 	});
 
 	router.get('/project', function(req, res) {
-
-		var result = {"username": "vc", "project": "tower", "access": 'Public' }
-
-		res.render('project',{ data: result });
-		return;
+        
+        const key = req.url;
+        client.get(key, (err, result) => {
+        if (err == null && result != null) {
+            console.log("From Cache");
+            res.send(result);
+            //res.send(result);
+        } else {console.log("Not in cache")
+            var result = {"username": "vc", "project": "tower", "access": 'Public' }
+            res.render('project',{ data: result }, function(err, html) {
+            res.send(html);
+            client.set(key, html);
+            });
+               }
+        })
 
 	});
 

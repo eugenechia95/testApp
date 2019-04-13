@@ -1,5 +1,6 @@
 var express = require('express');
 var app = express();
+var compression = require('compression');
 
 var cookieParser = require('cookie-parser');
 
@@ -18,6 +19,12 @@ var options = {
 };
 
 app.set('port', (process.env.PORT || 3000));
+
+//app.use(compression());
+app.use(compression({
+    level: 9,
+    memLevel: 9
+                    })); //Compress all routes
 
 /* serve static files */
 app.use(express.static((__dirname, './app')));
